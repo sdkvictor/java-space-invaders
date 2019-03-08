@@ -33,6 +33,8 @@ public class Game implements Runnable, Commons {
     
     private Player player;
     
+    private ArrayList<Alien> aliens;
+    
     /**
     * to create title, width and height and set the game is still not running
     * @param title to set the title of the window
@@ -43,6 +45,8 @@ public class Game implements Runnable, Commons {
         this.title = title;
         this.width = width;
         this.height = height;
+        
+        aliens = new ArrayList<>();
 
         running = false;
         keyManager = new KeyManager();
@@ -86,6 +90,13 @@ public class Game implements Runnable, Commons {
         display.getJframe().addKeyListener(keyManager);
         
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
+        
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 6; j++) {
+                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH);
+                aliens.add(alien);
+            }
+        }
     }
     
     /**
@@ -110,7 +121,15 @@ public class Game implements Runnable, Commons {
             g = bs.getDrawGraphics();
             g.clearRect(0, 0, width, height);
             g.drawImage(Assets.background, 0, 0, width, height, null);
+            
+            g.setColor(Color.green);
+            g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
             player.render(g);
+            
+            for (int i = 0; i < aliens.size(); i++) {
+                aliens.get(i).render(g);
+            }
+            
             bs.show();
             g.dispose();     
         }
