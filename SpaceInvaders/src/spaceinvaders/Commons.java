@@ -27,4 +27,6 @@ public interface Commons {
     public static final int PLAYER_HEIGHT = 10;
     public static final int PLAYER_START_X = 270;
     public static final int PLAYER_START_Y = 280;
+    public static final int ALIEN_INIT_X = 150;
+    public static final int ALIEN_INIT_Y = 5;
 }
