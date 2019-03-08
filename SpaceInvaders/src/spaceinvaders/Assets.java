@@ -16,6 +16,6 @@ public class Assets {
     public static BufferedImage background;
     
     public static void init() {
-        background = ImageLoader.loadImage("/images/space_background.jpg");
+        background = ImageLoader.loadImage("/images/background.jpg");
     }
 }
