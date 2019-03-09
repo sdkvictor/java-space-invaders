@@ -37,6 +37,7 @@ public class Game implements Runnable, Commons {
     
     private boolean gameOver;
     private boolean gameWon;
+    private boolean paused;
     
     private String message;
     
@@ -57,6 +58,7 @@ public class Game implements Runnable, Commons {
         keyManager = new KeyManager();
         gameOver = false;
         gameWon = false;
+        paused = false;
         message = "Game Over!";
     }
     
@@ -106,14 +108,44 @@ public class Game implements Runnable, Commons {
      */
     private void tick() {
         if (gameOver) {
+            keyManager.tick();
             return;
         }
         
-        player.tick();
+        if (paused) {
+            keyManager.tick();
+            if (keyManager.p) {
+                paused = false;
+            }
+            return;
+        }
+        
         keyManager.tick();
+        
+        if (keyManager.p) {
+            paused = true;
+        }
+        
+        player.tick();
+        
         aliens.tick();
         
-        if (aliens.intersectsBomb(player)) {
+        if (aliens.checkShot(player.getShot())) {
+            player.getShot().setActive(false);
+            player.getShot().reset();
+        }
+        
+        if (aliens.allDead()) {
+            message = "Game Won!";
+            gameOver = true;
+        }
+        
+        if (aliens.haveInvaded()) {
+            message = "Invasion!";
+            gameOver = true;
+        }
+        
+        if (aliens.bombIntersects(player)) {
             gameOver = true;
         }
     }
@@ -148,7 +180,9 @@ public class Game implements Runnable, Commons {
                 g.setFont(small);
                 g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2, BOARD_WIDTH / 2);
             } else {
-                g.drawImage(Assets.background, 0, 0, width, height, null);
+                g.drawImage(Assets.background, 0, 0, getWidth(), getHeight(), null);
+                //g.setColor(Color.black);
+                //g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
                 g.setColor(Color.green);
                 g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);

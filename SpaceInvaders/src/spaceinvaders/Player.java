@@ -55,8 +55,7 @@ public class Player extends Item implements Commons {
     @Override
     public void render(Graphics g) {
         shot.render(g);
-        g.setColor(Color.GREEN);
-        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        g.drawImage(Assets.player, getX(), getY(), getWidth(), getHeight(), null);
     }
     
     private void shoot() {
@@ -67,7 +66,7 @@ public class Player extends Item implements Commons {
         return shot;
     }
     
-    private class Shot extends Item {
+    public class Shot extends Item {
     
         private boolean active;
         private int speed;
@@ -82,6 +81,10 @@ public class Player extends Item implements Commons {
             active = true;
             setX(x - getWidth()/2);
             setY(y);
+        }
+        
+        public void reset() {
+            setY(GROUND);
         }
 
         @Override
@@ -98,7 +101,7 @@ public class Player extends Item implements Commons {
         @Override
         public void render(Graphics g) {
             if (active) {
-                g.setColor(Color.BLUE);
+                g.setColor(Color.GREEN);
                 g.fillRect(getX(), getY(), getWidth(), getHeight());
             }
         }
@@ -110,7 +113,5 @@ public class Player extends Item implements Commons {
         public void setActive(boolean active) {
             this.active = active;
         }
-}
-
-    
+    }
 }

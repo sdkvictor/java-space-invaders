@@ -27,15 +27,16 @@ public class Aliens implements Commons {
         
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
-                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH, -1);
+                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH, -1, i);
                 aliens.add(alien);
             }
         }
     }
     
-    public boolean intersectsBomb(Item item) {
+    public boolean bombIntersects(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
-            if (aliens.get(i).getBomb().intersects(item)) {
+            if (aliens.get(i).getBomb().intersects(item) && aliens.get(i).getBomb().isActive()) {
+                System.out.println("BOOM");
                 return true;
             }
         }
@@ -43,28 +44,47 @@ public class Aliens implements Commons {
         return false;
     }
     
-    public void checkShot(Item item) {
+    public boolean checkShot(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
-            if (aliens.get(i).intersects(item)) {
-                aliens.get(i)
+            if (aliens.get(i).intersects(item) && !aliens.get(i).isDead()) {
+                aliens.get(i).setDead(true);
+                aliens.get(i).setRecentlyDead(true);
+                aliens.get(i).setRecentlyDeadCounter(0);
+                amountDestroyed++;
+                return true;
             }
         }
+        
+        return false;
     }
     
+    public boolean haveInvaded() {
+        for (int i = 0; i < aliens.size(); i++) {
+            if (aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDead()) {
+                return true;
+            }
+        }
+        
+        return false;
+        
+    }
+    
+    public boolean allDead() {
+        return amountDestroyed >= aliens.size();
+    }
+     
     public void tick() {
         
-        boolean moveFromLeft = aliens.get(6).getX() <= BORDER_LEFT && aliens.get(6).getDirection() != 1;
-        boolean moveFromRight = aliens.get(aliens.size() - 1).getX() >= BOARD_WIDTH - BORDER_RIGHT && aliens.get(aliens.size() - 1).getDirection() != -1;
         
         for (int i = 0; i < aliens.size(); i++) {
-            if (moveFromLeft) {
-                aliens.get(i).setDirection(1);
-                aliens.get(i).goDown();
-            }
+            boolean moveFromLeft = aliens.get(i).getX() <= BORDER_LEFT && aliens.get(i).getDirection() != 1 && !aliens.get(i).isDead();
+            boolean moveFromRight = aliens.get(i).getX() >= BOARD_WIDTH - BORDER_RIGHT && aliens.get(i).getDirection() != -1 && !aliens.get(i).isDead();
             
-            if (moveFromRight) {
-                aliens.get(i).setDirection(-1);
-                aliens.get(i).goDown();
+            if (moveFromLeft || moveFromRight) {
+                for (int j = 0; j < aliens.size(); j++) {
+                    aliens.get(j).setDirection(aliens.get(j).getDirection() * -1);
+                    aliens.get(j).goDown();
+                }
             }
             
             aliens.get(i).tick();
@@ -82,19 +102,35 @@ public class Aliens implements Commons {
         private int direction;
         private Bomb bomb;
         private boolean dead;
+        private int image;
+        private boolean recentlyDead;
+        private int recentlyDeadCounter;
 
-        public Alien(int x, int y, int width, int height, int direction) {
+        public Alien(int x, int y, int width, int height, int direction, int image) {
             super(x, y, width, height);
             bomb = new Bomb(getX(), getY(), BOMB_WIDTH, BOMB_HEIGHT);
+            dead = false;
+            recentlyDead = false;
+            recentlyDeadCounter = 0;
             this.direction = direction;
+            this.image = image;
+            
         }
 
         @Override
         public void tick() {
             setX(getX() + direction);
             
-            //Check if the alien has not dropped a bomb
-            if (!bomb.isActive()) {
+            if (recentlyDead) {
+                recentlyDeadCounter++;
+                
+                if (recentlyDeadCounter >= ANIMATION_FRAMES) {
+                    recentlyDead = false;
+                }
+            }
+            
+            //Check if the alien has not dropped a bomb and is alive
+            if (!bomb.isActive() && !isDead()) {
                 //The alien has 1/15 probability of dropping a bomb
                 int chance = (int) (Math.random() * 15);
                 
@@ -110,8 +146,15 @@ public class Aliens implements Commons {
 
         @Override
         public void render(Graphics g) {
-            g.setColor(Color.CYAN);
-            g.fillRect(getX(), getY(), width, height);
+            
+            if (!isDead()) {
+                g.drawImage(Assets.alien[image], getX(), getY(), getWidth(), getHeight(), null);
+            }
+            
+            if (recentlyDead) {
+                g.drawImage(Assets.explosion, getX(), getY(), getWidth(), getHeight(), null);
+            }
+            
             bomb.render(g);
         }
         
@@ -130,6 +173,32 @@ public class Aliens implements Commons {
         public Bomb getBomb() {
             return bomb;
         }
+
+        public boolean isDead() {
+            return dead;
+        }
+
+        public void setDead(boolean dead) {
+            this.dead = dead;
+        }
+
+        public boolean isRecentlyDead() {
+            return recentlyDead;
+        }
+
+        public void setRecentlyDead(boolean recentlyDead) {
+            this.recentlyDead = recentlyDead;
+        }
+        
+        public int getRecentlyDeadCounter() {
+            return recentlyDeadCounter;
+        }
+
+        public void setRecentlyDeadCounter(int recentlyDeadCounter) {
+            this.recentlyDeadCounter = recentlyDeadCounter;
+        }
+        
+        
         
         public class Bomb extends Item {
             
@@ -151,6 +220,7 @@ public class Aliens implements Commons {
                 if (active) {
                     setY(getY() + 1);
                     if (getY() >= GROUND - BOMB_HEIGHT) {
+                        setY(0);
                         setActive(false);    
                     }
                 } 
@@ -167,8 +237,7 @@ public class Aliens implements Commons {
             @Override
             public void render(Graphics g) {
                 if (active) {
-                    g.setColor(Color.WHITE);
-                    g.fillOval(getX(), getY(), getWidth(), getHeight());
+                    g.drawImage(Assets.bomb, getX(), getY(), getWidth(), getHeight(), null);
                 }
             }
         }
