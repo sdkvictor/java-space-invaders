@@ -18,8 +18,12 @@ public class Aliens implements Commons {
     private ArrayList<Alien> aliens;
     private int direction = 1;
     
+    private int amountDestroyed;
+    
     public Aliens() {
         aliens = new ArrayList<>();
+        
+        amountDestroyed = 0;
         
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
@@ -37,6 +41,14 @@ public class Aliens implements Commons {
         }
         
         return false;
+    }
+    
+    public void checkShot(Item item) {
+        for (int i = 0; i < aliens.size(); i++) {
+            if (aliens.get(i).intersects(item)) {
+                aliens.get(i)
+            }
+        }
     }
     
     public void tick() {
@@ -69,6 +81,7 @@ public class Aliens implements Commons {
         
         private int direction;
         private Bomb bomb;
+        private boolean dead;
 
         public Alien(int x, int y, int width, int height, int direction) {
             super(x, y, width, height);

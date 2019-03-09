@@ -37,7 +37,9 @@ public class Player extends Item implements Commons {
             setX(getX() + speed);
         }
         
-        if (game.getKeyManager())
+        if (game.getKeyManager().space && !shot.isActive()) {
+            shoot();
+        }
         
         if (getX() <= 2) {
             setX(2);
@@ -46,12 +48,19 @@ public class Player extends Item implements Commons {
         if (getX() >= game.getWidth() - getWidth()) {
             setX(game.getWidth() - getWidth());
         }
+        
+        shot.tick();
     }
 
     @Override
     public void render(Graphics g) {
+        shot.render(g);
         g.setColor(Color.GREEN);
         g.fillRect(getX(), getY(), getWidth(), getHeight());
+    }
+    
+    private void shoot() {
+        shot.shoot(getX() + getWidth()/2, getY());
     }
 
     public Shot getShot() {
@@ -61,18 +70,37 @@ public class Player extends Item implements Commons {
     private class Shot extends Item {
     
         private boolean active;
+        private int speed;
 
         public Shot(int x, int y, int width, int height) {
             super(x, y, width, height);
             active = false;
+            speed = 4;
+        }
+        
+        public void shoot(int x, int y) {
+            active = true;
+            setX(x - getWidth()/2);
+            setY(y);
         }
 
         @Override
         public void tick() {
+            if (active) {
+                setY(getY() - 4);
+            }
+            
+            if (getY() <= 0) {
+                active = false;
+            }
         }
 
         @Override
         public void render(Graphics g) {
+            if (active) {
+                g.setColor(Color.BLUE);
+                g.fillRect(getX(), getY(), getWidth(), getHeight());
+            }
         }
 
         public boolean isActive() {

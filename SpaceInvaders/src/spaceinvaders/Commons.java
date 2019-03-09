@@ -28,6 +28,6 @@ public interface Commons {
     public static final int PLAYER_START_Y = 280;
     public static final int ALIEN_INIT_X = 150;
     public static final int ALIEN_INIT_Y = 5;
-    public static final int SHOT_WIDTH = 2;
-    public static final int SHOT_HEIGHT = 5;
+    public static final int SHOT_WIDTH = 5;
+    public static final int SHOT_HEIGHT = 10;
 }
