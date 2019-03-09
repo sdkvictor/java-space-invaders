@@ -11,18 +11,4 @@ import java.awt.Graphics;
  *
  * @author charles
  */
-public class Bomb extends Item {
 
-    public Bomb(int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
-
-    @Override
-    public void tick() {
-    }
-
-    @Override
-    public void render(Graphics g) {
-    }
-    
-}

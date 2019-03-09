@@ -7,10 +7,10 @@ package spaceinvaders;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 
 /**
  *
@@ -32,8 +32,13 @@ public class Game implements Runnable, Commons {
     private KeyManager keyManager;
     
     private Player player;
+    private Aliens aliens;
+    private Shot shot;
     
-    private ArrayList<Alien> aliens;
+    private boolean gameOver;
+    private boolean gameWon;
+    
+    private String message;
     
     /**
     * to create title, width and height and set the game is still not running
@@ -46,10 +51,13 @@ public class Game implements Runnable, Commons {
         this.width = width;
         this.height = height;
         
-        aliens = new ArrayList<>();
+        aliens = new Aliens();
 
         running = false;
         keyManager = new KeyManager();
+        gameOver = false;
+        gameWon = false;
+        message = "Game Over!";
     }
     
      /**
@@ -59,13 +67,14 @@ public class Game implements Runnable, Commons {
     public void run() {
         init();
         
-        int fps = 50;
+        int fps = 60; //Current game requirements demand 60 fps
         double timeTick = 1000000000 / fps;
         double delta = 0;
         long now;
         long lastTime = System.nanoTime();
         
         while (running) {
+            
             now = System.nanoTime();
             delta += (now - lastTime) / timeTick;
             lastTime = now;
@@ -90,21 +99,23 @@ public class Game implements Runnable, Commons {
         display.getJframe().addKeyListener(keyManager);
         
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
-        
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 6; j++) {
-                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH);
-                aliens.add(alien);
-            }
-        }
     }
     
     /**
      * updates all objects on a frame
      */
     private void tick() {
+        if (gameOver) {
+            return;
+        }
+        
         player.tick();
         keyManager.tick();
+        aliens.tick();
+        
+        if (aliens.intersectsBomb(player)) {
+            gameOver = true;
+        }
     }
     
     /**
@@ -120,14 +131,30 @@ public class Game implements Runnable, Commons {
         else {
             g = bs.getDrawGraphics();
             g.clearRect(0, 0, width, height);
-            g.drawImage(Assets.background, 0, 0, width, height, null);
             
-            g.setColor(Color.green);
-            g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
-            player.render(g);
-            
-            for (int i = 0; i < aliens.size(); i++) {
-                aliens.get(i).render(g);
+            if (gameOver) {
+                g.setColor(Color.black);
+                g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+                g.setColor(new Color(0, 32, 48));
+                g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                g.setColor(Color.white);
+                g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+
+                Font small = new Font("Helvetica", Font.BOLD, 14);
+                FontMetrics metr = display.getJframe().getFontMetrics(small);
+
+                g.setColor(Color.white);
+                g.setFont(small);
+                g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2, BOARD_WIDTH / 2);
+            } else {
+                g.drawImage(Assets.background, 0, 0, width, height, null);
+
+                g.setColor(Color.green);
+                g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
+                player.render(g);
+
+                aliens.render(g);
             }
             
             bs.show();
