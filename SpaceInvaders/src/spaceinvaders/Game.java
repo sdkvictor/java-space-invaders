@@ -11,6 +11,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  *
@@ -189,10 +194,65 @@ public class Game implements Runnable, Commons {
                 player.render(g);
 
                 aliens.render(g);
+                
+                if (paused) {
+                     g.setColor(new Color(0, 32, 48));
+                    g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                    g.setColor(Color.white);
+                    g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+
+                    Font small = new Font("Helvetica", Font.BOLD, 14);
+                    FontMetrics metr = display.getJframe().getFontMetrics(small);
+
+                    g.setColor(Color.white);
+                    g.setFont(small);
+                    g.drawString("Paused", (BOARD_WIDTH - metr.stringWidth("Paused")) / 2, BOARD_WIDTH / 2);
+                }
             }
             
             bs.show();
             g.dispose();     
+        }
+    }
+    
+    /**
+     * Saves current game status into a text file
+     * Each important variable to define the current status of the game is
+     * stored in the file in a specific order
+     */
+    private void saveGame() {
+        try {
+            //Open text file
+            PrintWriter pw = new PrintWriter(new FileWriter("game.txt"));
+            
+            pw.println(Integer.toString(player.getX()));
+            pw.println(Integer.toString(player.getY()));
+            pw.println(Integer.toString(player.getShot().getX()));
+            pw.println(Integer.toString(player.getShot().getY()));
+            pw.println(Integer.toString(player.getShot().isActive() ? 1 : 0));
+            
+            aliens.save(pw);
+            
+        } catch(IOException e) {
+            System.out.println("BEEP BEEP");
+            System.out.println(e.toString());
+        }
+    }
+    
+    /**
+     * Load game from text file
+     * This method open the designated text file and reads its contents
+     * and assigns them to their designated variables
+     */
+    private void loadGame() {
+        try {
+            //Open file to load game
+            BufferedReader br = new BufferedReader(new FileReader("game.txt"));
+            
+           
+        } catch (IOException e) {
+            System.out.println("BEEP BEEP");
+            System.out.println(e.toString());
         }
     }
     
