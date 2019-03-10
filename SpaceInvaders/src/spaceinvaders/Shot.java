@@ -5,28 +5,34 @@
  */
 package spaceinvaders;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 /**
  *
  * @author charles
  */
-public class Alien extends Item {
-
-    public Alien(int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+public class Shot extends Item {
     
+    private boolean active;
+
+    public Shot(int x, int y, int width, int height) {
+        super(x, y, width, height);
+        active = false;
+    }
+
     @Override
     public void tick() {
     }
 
     @Override
     public void render(Graphics g) {
-        g.setColor(Color.CYAN);
-        g.fillRect(x, y, width, height);
     }
 
-    
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

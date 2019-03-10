@@ -7,10 +7,15 @@ package spaceinvaders;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  *
@@ -32,8 +37,15 @@ public class Game implements Runnable, Commons {
     private KeyManager keyManager;
     
     private Player player;
+    private Aliens aliens;
+    private Shot shot;
     
-    private ArrayList<Alien> aliens;
+    private boolean gameOver;
+    private boolean gameWon;
+    private boolean paused;
+    
+    private String message;
+    private int score;
     
     /**
     * to create title, width and height and set the game is still not running
@@ -46,10 +58,15 @@ public class Game implements Runnable, Commons {
         this.width = width;
         this.height = height;
         
-        aliens = new ArrayList<>();
+        aliens = new Aliens();
 
         running = false;
         keyManager = new KeyManager();
+        gameOver = false;
+        gameWon = false;
+        paused = false;
+        message = "Game Over!";
+        score = 0;
     }
     
      /**
@@ -59,13 +76,14 @@ public class Game implements Runnable, Commons {
     public void run() {
         init();
         
-        int fps = 50;
+        int fps = 60; //Current game requirements demand 60 fps
         double timeTick = 1000000000 / fps;
         double delta = 0;
         long now;
         long lastTime = System.nanoTime();
         
         while (running) {
+            
             now = System.nanoTime();
             delta += (now - lastTime) / timeTick;
             lastTime = now;
@@ -90,21 +108,83 @@ public class Game implements Runnable, Commons {
         display.getJframe().addKeyListener(keyManager);
         
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
-        
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 6; j++) {
-                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH);
-                aliens.add(alien);
-            }
-        }
     }
     
     /**
      * updates all objects on a frame
      */
     private void tick() {
-        player.tick();
+        if (gameOver) {
+            keyManager.tick();
+            if (keyManager.r) {
+                resetGame();
+            }
+            if (keyManager.c) {
+                loadGame();
+            }
+            return;
+        }
+        
+        if (paused) {
+            keyManager.tick();
+            if (keyManager.p) {
+                paused = false;
+            }
+            if (keyManager.g) {
+                saveGame();
+            }
+
+            if (keyManager.c) {
+                loadGame();
+            }
+
+            if (keyManager.r) {
+                resetGame();
+            }
+            return;
+        }
+        
         keyManager.tick();
+        
+        if (keyManager.p) {
+            paused = true;
+        }
+        
+        if (keyManager.g) {
+            saveGame();
+        }
+        
+        if (keyManager.c) {
+            loadGame();
+        }
+        
+        if (keyManager.r) {
+            resetGame();
+        }
+        
+        player.tick();
+        
+        aliens.tick();
+        
+        if (aliens.checkShot(player.getShot())) {
+            player.getShot().setActive(false);
+            player.getShot().reset();
+            score += 100;
+        }
+        
+        if (aliens.allDead()) {
+            message = "Game Won!";
+            gameOver = true;
+        }
+        
+        if (aliens.haveInvaded()) {
+            message = "Invasion!";
+            gameOver = true;
+        }
+        
+        if (aliens.bombIntersects(player)) {
+            gameOver = true;
+        }
     }
     
     /**
@@ -120,19 +200,131 @@ public class Game implements Runnable, Commons {
         else {
             g = bs.getDrawGraphics();
             g.clearRect(0, 0, width, height);
-            g.drawImage(Assets.background, 0, 0, width, height, null);
             
-            g.setColor(Color.green);
-            g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
-            player.render(g);
-            
-            for (int i = 0; i < aliens.size(); i++) {
-                aliens.get(i).render(g);
+            if (gameOver) {
+                g.setColor(Color.black);
+                g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+                g.setColor(new Color(0, 32, 48));
+                g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                g.setColor(Color.white);
+                g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+
+                Font small = new Font("Helvetica", Font.BOLD, 14);
+                FontMetrics metr = display.getJframe().getFontMetrics(small);
+
+                g.setColor(Color.white);
+                g.setFont(small);
+                g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2, BOARD_WIDTH / 2);
+            } else {
+                g.drawImage(Assets.background, 0, 0, getWidth(), getHeight(), null);
+                //g.setColor(Color.black);
+                //g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+                g.setColor(Color.green);
+                g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
+                player.render(g);
+
+                aliens.render(g);
+                
+                Font small = new Font("Helvetica", Font.BOLD, 13);
+
+                g.setColor(Color.white);
+                g.setFont(small);
+                String sScore = ("Score: " + Integer.toString(score));
+                g.drawString(sScore, BOARD_WIDTH - 100, BOARD_HEIGHT - 20);
+                
+                if (paused) {
+                     g.setColor(new Color(0, 32, 48));
+                    g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                    g.setColor(Color.white);
+                    g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+
+                    small = new Font("Helvetica", Font.BOLD, 14);
+                    FontMetrics metr = display.getJframe().getFontMetrics(small);
+
+                    g.setColor(Color.white);
+                    g.setFont(small);
+                    g.drawString("Paused", (BOARD_WIDTH - metr.stringWidth("Paused")) / 2, BOARD_WIDTH / 2);
+                }
             }
             
             bs.show();
             g.dispose();     
         }
+    }
+    
+    /**
+     * Saves current game status into a text file
+     * Each important variable to define the current status of the game is
+     * stored in the file in a specific order
+     */
+    private void saveGame() {
+        try {
+            //Open text file
+            PrintWriter pw = new PrintWriter(new FileWriter("game.txt"));
+            
+            pw.println(Integer.toString(player.getX()));
+            pw.println(Integer.toString(player.getY()));
+            pw.println(Integer.toString(player.getShot().getX()));
+            pw.println(Integer.toString(player.getShot().getY()));
+            pw.println(Integer.toString(player.getShot().isActive() ? 1 : 0));
+            
+            aliens.save(pw);
+            
+            pw.println(Integer.toString(score));
+            
+            pw.close();
+            
+            System.out.println("SAVED!");
+        } catch(IOException e) {
+            System.out.println("BEEP BEEP");
+            System.out.println(e.toString());
+        }
+    }
+    
+    /**
+     * Load game from text file
+     * This method open the designated text file and reads its contents
+     * and assigns them to their designated variables
+     */
+    private void loadGame() {
+        try {
+            //Open file to load game
+            BufferedReader br = new BufferedReader(new FileReader("game.txt"));
+            
+            player.setX(Integer.parseInt(br.readLine()));
+            player.setY(Integer.parseInt(br.readLine()));
+            player.getShot().setX(Integer.parseInt(br.readLine()));
+            player.getShot().setY(Integer.parseInt(br.readLine()));
+            player.getShot().setActive(Integer.parseInt(br.readLine()) == 1);
+            
+            aliens.load(br);
+            
+            score = Integer.parseInt(br.readLine());
+            br.close();
+            
+            System.out.println("LOADED!");
+            gameOver = false;
+           
+        } catch (IOException e) {
+            System.out.println("BEEP BEEP");
+            System.out.println(e.toString());
+        }
+    }
+    
+    public void resetGame() {
+
+        player.setX(PLAYER_START_X);
+        player.setY(PLAYER_START_Y);
+        
+        player.getShot().setX(PLAYER_START_X);
+        player.getShot().setY(PLAYER_START_Y);
+        
+        aliens.reset();
+        
+        gameOver = false;
+        score = 0;
     }
     
     /**
