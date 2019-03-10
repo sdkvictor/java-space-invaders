@@ -7,6 +7,9 @@ package spaceinvaders;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -72,10 +75,55 @@ public class Aliens implements Commons {
     public boolean allDead() {
         return amountDestroyed >= aliens.size();
     }
+    
+    public void reset() {
+        amountDestroyed = 0;
+        int count = 0;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 6; j++) {
+                aliens.get(count).setX(ALIEN_INIT_X + 18 * j);
+                aliens.get(count).setY(ALIEN_INIT_Y + 18 * i);
+                aliens.get(count).setDirection(-1);
+                aliens.get(count).setDead(false);
+                aliens.get(count).getBomb().setActive(false);
+                aliens.get(count).getBomb().setX(0);
+                aliens.get(count).getBomb().setY(0);
+                count++;
+            }
+        }
+    }
+    
+    public void save(PrintWriter pw) {
+        pw.println(Integer.toString(amountDestroyed));
+        pw.println(Integer.toString(aliens.get(0).getDirection()));
+        
+        for (int i = 0; i < aliens.size(); i++) {
+            pw.println(Integer.toString(aliens.get(i).isDead() ? 0 : 1));
+            pw.println(Integer.toString(aliens.get(i).getX()));
+            pw.println(Integer.toString(aliens.get(i).getY()));
+            pw.println(Integer.toString(aliens.get(i).getBomb().isActive() ? 1 : 0));
+            pw.println(Integer.toString(aliens.get(i).getBomb().getX()));
+            pw.println(Integer.toString(aliens.get(i).getBomb().getY()));
+      
+        }
+    }
+    
+    public void load(BufferedReader br) throws IOException {
+        amountDestroyed = Integer.parseInt(br.readLine());
+        int direction = Integer.parseInt(br.readLine());
+        
+        for (int i = 0; i < aliens.size(); i++) {
+            aliens.get(i).setDead(Integer.parseInt(br.readLine()) == 0);
+            aliens.get(i).setX(Integer.parseInt(br.readLine()));
+            aliens.get(i).setY(Integer.parseInt(br.readLine()));
+            aliens.get(i).setDirection(direction);
+            aliens.get(i).getBomb().setActive(Integer.parseInt(br.readLine()) == 1);
+            aliens.get(i).getBomb().setX(Integer.parseInt(br.readLine()));
+            aliens.get(i).getBomb().setY(Integer.parseInt(br.readLine()));
+        }
+    }
      
-    public void tick() {
-        
-        
+    public void tick() {     
         for (int i = 0; i < aliens.size(); i++) {
             boolean moveFromLeft = aliens.get(i).getX() <= BORDER_LEFT && aliens.get(i).getDirection() != 1 && !aliens.get(i).isDead();
             boolean moveFromRight = aliens.get(i).getX() >= BOARD_WIDTH - BORDER_RIGHT && aliens.get(i).getDirection() != -1 && !aliens.get(i).isDead();

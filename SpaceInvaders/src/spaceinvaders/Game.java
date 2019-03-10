@@ -114,6 +114,9 @@ public class Game implements Runnable, Commons {
     private void tick() {
         if (gameOver) {
             keyManager.tick();
+            if (keyManager.r) {
+                resetGame();
+            }
             return;
         }
         
@@ -122,6 +125,17 @@ public class Game implements Runnable, Commons {
             if (keyManager.p) {
                 paused = false;
             }
+            if (keyManager.g) {
+                saveGame();
+            }
+
+            if (keyManager.c) {
+                loadGame();
+            }
+
+            if (keyManager.r) {
+                resetGame();
+            }
             return;
         }
         
@@ -129,6 +143,18 @@ public class Game implements Runnable, Commons {
         
         if (keyManager.p) {
             paused = true;
+        }
+        
+        if (keyManager.g) {
+            saveGame();
+        }
+        
+        if (keyManager.c) {
+            loadGame();
+        }
+        
+        if (keyManager.r) {
+            resetGame();
         }
         
         player.tick();
@@ -233,6 +259,9 @@ public class Game implements Runnable, Commons {
             
             aliens.save(pw);
             
+            pw.close();
+            
+            System.out.println("SAVED!");
         } catch(IOException e) {
             System.out.println("BEEP BEEP");
             System.out.println(e.toString());
@@ -249,11 +278,35 @@ public class Game implements Runnable, Commons {
             //Open file to load game
             BufferedReader br = new BufferedReader(new FileReader("game.txt"));
             
+            player.setX(Integer.parseInt(br.readLine()));
+            player.setY(Integer.parseInt(br.readLine()));
+            player.getShot().setX(Integer.parseInt(br.readLine()));
+            player.getShot().setY(Integer.parseInt(br.readLine()));
+            player.getShot().setActive(Integer.parseInt(br.readLine()) == 1);
+            
+            aliens.load(br);
+            
+            br.close();
+            
+            System.out.println("LOADED!");
            
         } catch (IOException e) {
             System.out.println("BEEP BEEP");
             System.out.println(e.toString());
         }
+    }
+    
+    public void resetGame() {
+
+        player.setX(PLAYER_START_X);
+        player.setY(PLAYER_START_Y);
+        
+        player.getShot().setX(PLAYER_START_X);
+        player.getShot().setY(PLAYER_START_Y);
+        
+        aliens.reset();
+        
+        gameOver = false;
     }
     
     /**
