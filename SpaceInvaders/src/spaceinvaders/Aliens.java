@@ -54,6 +54,7 @@ public class Aliens implements Commons {
                 aliens.get(i).setRecentlyDead(true);
                 aliens.get(i).setRecentlyDeadCounter(0);
                 amountDestroyed++;
+                Assets.expSound.play();
                 return true;
             }
         }

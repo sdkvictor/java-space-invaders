@@ -45,6 +45,7 @@ public class Game implements Runnable, Commons {
     private boolean paused;
     
     private String message;
+    private int score;
     
     /**
     * to create title, width and height and set the game is still not running
@@ -65,6 +66,7 @@ public class Game implements Runnable, Commons {
         gameWon = false;
         paused = false;
         message = "Game Over!";
+        score = 0;
     }
     
      /**
@@ -167,6 +169,7 @@ public class Game implements Runnable, Commons {
         if (aliens.checkShot(player.getShot())) {
             player.getShot().setActive(false);
             player.getShot().reset();
+            score += 100;
         }
         
         if (aliens.allDead()) {
@@ -224,13 +227,20 @@ public class Game implements Runnable, Commons {
 
                 aliens.render(g);
                 
+                Font small = new Font("Helvetica", Font.BOLD, 13);
+
+                g.setColor(Color.white);
+                g.setFont(small);
+                String sScore = ("Score: " + Integer.toString(score));
+                g.drawString(sScore, BOARD_WIDTH - 100, BOARD_HEIGHT - 20);
+                
                 if (paused) {
                      g.setColor(new Color(0, 32, 48));
                     g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
                     g.setColor(Color.white);
                     g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
 
-                    Font small = new Font("Helvetica", Font.BOLD, 14);
+                    small = new Font("Helvetica", Font.BOLD, 14);
                     FontMetrics metr = display.getJframe().getFontMetrics(small);
 
                     g.setColor(Color.white);
@@ -262,6 +272,8 @@ public class Game implements Runnable, Commons {
             
             aliens.save(pw);
             
+            pw.println(Integer.toString(score));
+            
             pw.close();
             
             System.out.println("SAVED!");
@@ -289,6 +301,7 @@ public class Game implements Runnable, Commons {
             
             aliens.load(br);
             
+            score = Integer.parseInt(br.readLine());
             br.close();
             
             System.out.println("LOADED!");
@@ -311,6 +324,7 @@ public class Game implements Runnable, Commons {
         aliens.reset();
         
         gameOver = false;
+        score = 0;
     }
     
     /**

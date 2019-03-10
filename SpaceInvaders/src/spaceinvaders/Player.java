@@ -39,6 +39,7 @@ public class Player extends Item implements Commons {
         
         if (game.getKeyManager().space && !shot.isActive()) {
             shoot();
+            Assets.laser.play();
         }
         
         if (getX() <= 2) {
