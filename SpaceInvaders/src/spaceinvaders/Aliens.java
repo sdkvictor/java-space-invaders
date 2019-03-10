@@ -37,11 +37,7 @@ public class Aliens implements Commons {
             }
         }
     }
-    /**
-     * To check if the bomb intersects with the player
-     * @param item
-     * @return 
-     */
+
     public boolean bombIntersects(Item item) {
         //checks for every bomb
         for (int i = 0; i < aliens.size(); i++) {
@@ -53,11 +49,7 @@ public class Aliens implements Commons {
         
         return false;
     }
-    /**
-     * Returns true if the alien is in contact with the player's laser
-     * @param item
-     * @return 
-     */
+
     public boolean checkShot(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).intersects(item) && !aliens.get(i).isDead()) {
@@ -76,10 +68,7 @@ public class Aliens implements Commons {
         
         return false;
     }
-    /**
-     * To check if the aliens have reached the ground
-     * @return 
-     */
+
     public boolean haveInvaded() {
         //check for every alien
         for (int i = 0; i < aliens.size(); i++) {
@@ -91,10 +80,7 @@ public class Aliens implements Commons {
         return false;
         
     }
-    /**
-     * To check if all enemies have been destroyed
-     * @return 
-     */
+
     public boolean allDead() {
         return amountDestroyed >= aliens.size();
     }
