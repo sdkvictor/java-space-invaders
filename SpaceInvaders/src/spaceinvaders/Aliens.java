@@ -22,9 +22,7 @@ public class Aliens implements Commons {
     private int direction = 1; //movement direction of the aliens
     
     private int amountDestroyed;
-    /**
-     * To create an arraylist of  enemy aliens
-     */
+
     public Aliens() {
         aliens = new ArrayList<>();
         
