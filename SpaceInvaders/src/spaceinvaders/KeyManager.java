@@ -18,6 +18,9 @@ public class KeyManager implements KeyListener {
     public boolean left;
     public boolean right;
     
+    /**
+     * Keys to be used in the game
+     */
     public boolean p;
     public boolean r;
     public boolean g;
@@ -36,21 +39,36 @@ public class KeyManager implements KeyListener {
         keys = new boolean[256];
         prevp = false;
     }
-
+    
+    /**
+     * Not used
+     * @param e 
+     */
     @Override
     public void keyTyped(KeyEvent e) {
     }
-
+    
+    /**
+     * Detect when a key has been pressed
+     * @param e 
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         keys[e.getKeyCode()] = true;
     }
-
+    
+    /**
+     * Detect when a key has been released
+     * @param e 
+     */
     @Override
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
     }
     
+    /**
+     * To update the object each frame
+     */
     public void tick() {
         left = keys[KeyEvent.VK_LEFT];
         right = keys[KeyEvent.VK_RIGHT];
@@ -60,6 +78,11 @@ public class KeyManager implements KeyListener {
         
         r = keys[KeyEvent.VK_R];
         
+        
+        /**
+         * The following set of if statements prevent the key being triggered multiple
+         * consecutive times without releasing the key
+         */
         if (keys[KeyEvent.VK_P]) {
             if (!prevp) {
                 p = true;
@@ -71,6 +94,9 @@ public class KeyManager implements KeyListener {
             prevp = false;
         }
         
+        /**
+         * Same for this
+         */
         if (keys[KeyEvent.VK_G]) {
             if (!prevg) {
                 g = true;
@@ -82,6 +108,9 @@ public class KeyManager implements KeyListener {
             prevg = false;
         }
         
+        /**
+         * Same for this
+         */
         if (keys[KeyEvent.VK_C]) {
             if (!prevc) {
                 c = true;
@@ -93,6 +122,9 @@ public class KeyManager implements KeyListener {
             prevc = false;
         }
         
+        /**
+         * Same for this
+         */        
         if (keys[KeyEvent.VK_R]) {
             if (!prevr) {
                 r = true;

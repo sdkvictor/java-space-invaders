@@ -38,7 +38,6 @@ public class Game implements Runnable, Commons {
     
     private Player player;
     private Aliens aliens;
-    private Shot shot;
     
     private boolean gameOver;
     private boolean gameWon;
@@ -349,6 +348,86 @@ public class Game implements Runnable, Commons {
      */
     public KeyManager getKeyManager() {
         return keyManager;
+    }
+    
+    /**
+     * To get aliens object
+     * @return 
+     */
+    public Aliens getAliens() {
+        return aliens;
+    }
+    
+    /**
+     * To set aliens object
+     * @param aliens 
+     */
+    public void setAliens(Aliens aliens) {
+        this.aliens = aliens;
+    }
+    
+    /**
+     * To get message
+     * @return 
+     */
+    public String getMessage() {
+        return message;
+    }
+    
+    /**
+     * To set message
+     * @param message 
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
+    /**
+     * To get paused
+     * @return 
+     */
+    public boolean isPaused() {
+        return paused;
+    }
+    
+    /**
+     * To set paused
+     * @param paused 
+     */
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+    
+    /**
+     * To get gameOver
+     * @return 
+     */
+    public boolean isGameOver() {
+        return gameOver;
+    }
+    
+    /**
+     * to set gameOver
+     * @param gameOver 
+     */
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+    
+    /**
+     * To get gameWon
+     * @return 
+     */
+    public boolean isGameWon() {
+        return gameWon;
+    }
+    
+    /**
+     * To set gameWon
+     * @param gameWon 
+     */
+    public void setGameWon(boolean gameWon) {
+        this.gameWon = gameWon;
     }
     
     /**

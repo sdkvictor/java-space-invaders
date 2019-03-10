@@ -11,6 +11,10 @@ package spaceinvaders;
  */
 public interface Commons {
     
+    /**
+     * This class contains all the values used in various objects so that they can
+     * be easily accessed in a single place
+     */
     public static final int BOARD_WIDTH = 358;
     public static final int BOARD_HEIGHT = 350;
     public static final int GROUND = 290;

@@ -18,11 +18,19 @@ import java.util.ArrayList;
  */
 public class Aliens implements Commons {
     
+    /**
+     * All aliens are encapsulated in a class Aliens so that it becomes easier to 
+     * deal with all aliens from the Game class, abstracting aliens behaviours in the new
+     * Aliens class methods
+     */
     private ArrayList<Alien> aliens;
     private int direction = 1;
     
     private int amountDestroyed;
     
+    /**
+     * To create an aliens object
+     */
     public Aliens() {
         aliens = new ArrayList<>();
         
@@ -36,6 +44,11 @@ public class Aliens implements Commons {
         }
     }
     
+    /**
+     * To check if any bomb intersects with the player (item)
+     * @param item
+     * @return 
+     */
     public boolean bombIntersects(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).getBomb().intersects(item) && aliens.get(i).getBomb().isActive()) {
@@ -47,6 +60,11 @@ public class Aliens implements Commons {
         return false;
     }
     
+    /**
+     * To check if the shot (item) collides with any alien, and if so, kill the alien
+     * @param item
+     * @return 
+     */
     public boolean checkShot(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).intersects(item) && !aliens.get(i).isDead()) {
@@ -62,6 +80,10 @@ public class Aliens implements Commons {
         return false;
     }
     
+    /**
+     * To check if any alien has reached the ground
+     * @return 
+     */
     public boolean haveInvaded() {
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDead()) {
@@ -73,10 +95,17 @@ public class Aliens implements Commons {
         
     }
     
+    /**
+     * To check if all aliens have been killed
+     * @return 
+     */
     public boolean allDead() {
         return amountDestroyed >= aliens.size();
     }
     
+    /**
+     * To reset all aliens to their initial state
+     */
     public void reset() {
         amountDestroyed = 0;
         int count = 0;
@@ -94,6 +123,10 @@ public class Aliens implements Commons {
         }
     }
     
+    /**
+     * To save the values of all aliens to the file
+     * @param pw 
+     */
     public void save(PrintWriter pw) {
         pw.println(Integer.toString(amountDestroyed));
         pw.println(Integer.toString(aliens.get(0).getDirection()));
@@ -109,6 +142,11 @@ public class Aliens implements Commons {
         }
     }
     
+    /**
+     * to load the values of all aliens into the game
+     * @param br
+     * @throws IOException 
+     */
     public void load(BufferedReader br) throws IOException {
         amountDestroyed = Integer.parseInt(br.readLine());
         int direction = Integer.parseInt(br.readLine());
@@ -123,7 +161,10 @@ public class Aliens implements Commons {
             aliens.get(i).getBomb().setY(Integer.parseInt(br.readLine()));
         }
     }
-     
+    
+    /**
+     * To update all aliens in a frame
+     */
     public void tick() {     
         for (int i = 0; i < aliens.size(); i++) {
             boolean moveFromLeft = aliens.get(i).getX() <= BORDER_LEFT && aliens.get(i).getDirection() != 1 && !aliens.get(i).isDead();
@@ -140,12 +181,20 @@ public class Aliens implements Commons {
         }
     }
     
+    /**
+     * To render all aliens to the canvas
+     * @param g 
+     */
     public void render(Graphics g) {
         for (int i = 0; i < aliens.size(); i++) {
             aliens.get(i).render(g);
         }
     }
     
+    /**
+     * The class Alien is nested inside the class Aliens because it is a helper class
+     * to Aliens and it is only used by the class Aliens
+     */
     private class Alien extends Item {
         
         private int direction;
@@ -154,7 +203,16 @@ public class Aliens implements Commons {
         private int image;
         private boolean recentlyDead;
         private int recentlyDeadCounter;
-
+        
+        /**
+         * To create a new alien
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @param direction
+         * @param image 
+         */
         public Alien(int x, int y, int width, int height, int direction, int image) {
             super(x, y, width, height);
             bomb = new Bomb(getX(), getY(), BOMB_WIDTH, BOMB_HEIGHT);
@@ -165,7 +223,10 @@ public class Aliens implements Commons {
             this.image = image;
             
         }
-
+        
+        /**
+         * To update the object each frame
+         */
         @Override
         public void tick() {
             setX(getX() + direction);
@@ -192,7 +253,10 @@ public class Aliens implements Commons {
             bomb.tick();
             
         }
-
+        
+        /**
+         * To paint the object each frame
+         */
         @Override
         public void render(Graphics g) {
             
@@ -207,63 +271,119 @@ public class Aliens implements Commons {
             bomb.render(g);
         }
         
+        /**
+         * To move the alien down a constant amount
+         */
         public void goDown() {
             setY(getY() + GO_DOWN);
         }
-
+        
+        /**
+         * To get the direction of the alien
+         * @return 
+         */
         public int getDirection() {
             return direction;
         }
 
+        /**
+         * To set the direction of the alien
+         * @param direction 
+         */
         public void setDirection(int direction) {
             this.direction = direction;
         }
 
+        /**
+         * To get the bomb
+         * @return 
+         */
         public Bomb getBomb() {
             return bomb;
         }
 
+        /**
+         * to check if the alien is dead
+         * @return 
+         */
         public boolean isDead() {
             return dead;
         }
-
+        
+        /**
+         * To set dead
+         * @param dead 
+         */
         public void setDead(boolean dead) {
             this.dead = dead;
         }
-
+        
+        /**
+         * to get recentlyDead
+         * @return 
+         */
         public boolean isRecentlyDead() {
             return recentlyDead;
         }
 
+        /**
+         * to set recentlyDead
+         * @param recentlyDead 
+         */
         public void setRecentlyDead(boolean recentlyDead) {
             this.recentlyDead = recentlyDead;
         }
         
+        /**
+         * To get recentlyDeadCounter
+         * @return 
+         */
         public int getRecentlyDeadCounter() {
             return recentlyDeadCounter;
         }
 
+        /**
+         * To set recentlyDeadCounter
+         * @param recentlyDeadCounter 
+         */
         public void setRecentlyDeadCounter(int recentlyDeadCounter) {
             this.recentlyDeadCounter = recentlyDeadCounter;
         }
         
-        
-        
+        /**
+         *  The class Bomb is nested inside the class Alien because it is only used 
+         * by the class alien and it follows the rules of encapsulation
+         */
         public class Bomb extends Item {
             
             private boolean active;
-
+            
+            /**
+             * To create a new bomb
+             * @param x
+             * @param y
+             * @param width
+             * @param height 
+             */
             public Bomb(int x, int y, int width, int height) {
                 super(x, y, width, height);
                 active = false;
             }
-
+            
+            /**
+             * To activate the bomb and drop it
+             * @param x
+             * @param y 
+             */
             public void drop(int x, int y) {
                 setX(x);
                 setY(y);
                 active = true;
             }
             
+            /**
+             * To update the object in a frame
+             */
             @Override
             public void tick() {
                 if (active) {
@@ -274,15 +394,27 @@ public class Aliens implements Commons {
                     }
                 } 
             }
-
+            
+            /**
+             * To get active
+             * @return 
+             */
             public boolean isActive() {
                 return active;
             }
-
+            
+            /**
+             * To set active
+             * @param active 
+             */
             public void setActive(boolean active) {
                 this.active = active;
             }
-
+            
+            /**
+             * To paint the object in the canvas
+             * @param g 
+             */
             @Override
             public void render(Graphics g) {
                 if (active) {
