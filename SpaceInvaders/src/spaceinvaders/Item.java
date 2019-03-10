@@ -16,10 +16,10 @@ import java.awt.Rectangle;
  */
 public abstract class Item {
     
-    protected int x;
-    protected int y;
+    protected int x; //x position
+    protected int y; //y position
     protected int width;
-    protected int height;
+    protected int height; 
     
     /**
      * To create a new item

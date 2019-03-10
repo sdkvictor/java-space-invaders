@@ -23,19 +23,23 @@ public class Aliens implements Commons {
      * deal with all aliens from the Game class, abstracting aliens behaviours in the new
      * Aliens class methods
      */
-    private ArrayList<Alien> aliens;
-    private int direction = 1;
+    private ArrayList<Alien> aliens; //arraylist of objects of class alian
+    private int direction = 1; //movement direction of the aliens
     
     private int amountDestroyed;
+
+
+
     
     /**
      * To create an aliens object
      */
+
     public Aliens() {
         aliens = new ArrayList<>();
         
         amountDestroyed = 0;
-        
+        //adds 24 enemy aliens in their different initial positions
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
                 Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH, -1, i);
@@ -43,13 +47,14 @@ public class Aliens implements Commons {
             }
         }
     }
-    
+
     /**
      * To check if any bomb intersects with the player (item)
      * @param item
      * @return 
      */
     public boolean bombIntersects(Item item) {
+        //checks for every bomb
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).getBomb().intersects(item) && aliens.get(i).getBomb().isActive()) {
                 System.out.println("BOOM");
@@ -59,7 +64,7 @@ public class Aliens implements Commons {
         
         return false;
     }
-    
+
     /**
      * To check if the shot (item) collides with any alien, and if so, kill the alien
      * @param item
@@ -68,10 +73,14 @@ public class Aliens implements Commons {
     public boolean checkShot(Item item) {
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).intersects(item) && !aliens.get(i).isDead()) {
+                //change the destroyed alien as dead
                 aliens.get(i).setDead(true);
+                //change the status as recently dead
                 aliens.get(i).setRecentlyDead(true);
                 aliens.get(i).setRecentlyDeadCounter(0);
+                //increase the counter for destroyed aliens by one
                 amountDestroyed++;
+                //play the explosion sound
                 Assets.expSound.play();
                 return true;
             }
@@ -79,12 +88,13 @@ public class Aliens implements Commons {
         
         return false;
     }
-    
+
     /**
      * To check if any alien has reached the ground
      * @return 
      */
     public boolean haveInvaded() {
+        //check for every alien
         for (int i = 0; i < aliens.size(); i++) {
             if (aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDead()) {
                 return true;
@@ -94,7 +104,7 @@ public class Aliens implements Commons {
         return false;
         
     }
-    
+
     /**
      * To check if all aliens have been killed
      * @return 
@@ -107,8 +117,10 @@ public class Aliens implements Commons {
      * To reset all aliens to their initial state
      */
     public void reset() {
+        //set aliens destroyed as 0 
         amountDestroyed = 0;
         int count = 0;
+        //return every alien to their original positions, direction and set them as not dead
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
                 aliens.get(count).setX(ALIEN_INIT_X + 18 * j);
@@ -130,7 +142,7 @@ public class Aliens implements Commons {
     public void save(PrintWriter pw) {
         pw.println(Integer.toString(amountDestroyed));
         pw.println(Integer.toString(aliens.get(0).getDirection()));
-        
+        //save the status and positions of every alien and bomb
         for (int i = 0; i < aliens.size(); i++) {
             pw.println(Integer.toString(aliens.get(i).isDead() ? 0 : 1));
             pw.println(Integer.toString(aliens.get(i).getX()));
@@ -150,7 +162,7 @@ public class Aliens implements Commons {
     public void load(BufferedReader br) throws IOException {
         amountDestroyed = Integer.parseInt(br.readLine());
         int direction = Integer.parseInt(br.readLine());
-        
+        //read the status and positions of every alien and bomb
         for (int i = 0; i < aliens.size(); i++) {
             aliens.get(i).setDead(Integer.parseInt(br.readLine()) == 0);
             aliens.get(i).setX(Integer.parseInt(br.readLine()));
@@ -161,22 +173,25 @@ public class Aliens implements Commons {
             aliens.get(i).getBomb().setY(Integer.parseInt(br.readLine()));
         }
     }
-    
+
     /**
      * To update all aliens in a frame
      */
     public void tick() {     
+        //for every alien in the array list
         for (int i = 0; i < aliens.size(); i++) {
+            //check if the aliens at the left edge have reached the left border
             boolean moveFromLeft = aliens.get(i).getX() <= BORDER_LEFT && aliens.get(i).getDirection() != 1 && !aliens.get(i).isDead();
+            //check if the aiens at the right edge have reached the right border
             boolean moveFromRight = aliens.get(i).getX() >= BOARD_WIDTH - BORDER_RIGHT && aliens.get(i).getDirection() != -1 && !aliens.get(i).isDead();
-            
+            //if the aliens reached a border
             if (moveFromLeft || moveFromRight) {
+                //change the direction of all the aliens
                 for (int j = 0; j < aliens.size(); j++) {
                     aliens.get(j).setDirection(aliens.get(j).getDirection() * -1);
                     aliens.get(j).goDown();
                 }
             }
-            
             aliens.get(i).tick();
         }
     }
@@ -186,6 +201,7 @@ public class Aliens implements Commons {
      * @param g 
      */
     public void render(Graphics g) {
+        //render for every alien
         for (int i = 0; i < aliens.size(); i++) {
             aliens.get(i).render(g);
         }
@@ -197,12 +213,13 @@ public class Aliens implements Commons {
      */
     private class Alien extends Item {
         
-        private int direction;
-        private Bomb bomb;
-        private boolean dead;
-        private int image;
-        private boolean recentlyDead;
-        private int recentlyDeadCounter;
+
+        private int direction; //direction of the alien's movement
+        private Bomb bomb; //bomb that the alien throws
+        private boolean dead; //whether the alien has been destroyed
+        private int image; //image of the alien
+        private boolean recentlyDead; //whether the alien has just been destroyed
+        private int recentlyDeadCounter; //counter to make the explosion animation last 20 frames
         
         /**
          * To create a new alien
@@ -229,8 +246,9 @@ public class Aliens implements Commons {
          */
         @Override
         public void tick() {
+            //move the aliens in x 
             setX(getX() + direction);
-            
+            //wait 20 frames for the explosion animation
             if (recentlyDead) {
                 recentlyDeadCounter++;
                 
@@ -259,11 +277,11 @@ public class Aliens implements Commons {
          */
         @Override
         public void render(Graphics g) {
-            
+            //render the alien if its not dead yet
             if (!isDead()) {
                 g.drawImage(Assets.alien[image], getX(), getY(), getWidth(), getHeight(), null);
             }
-            
+            //render the explosion if the alien has just been destroyed
             if (recentlyDead) {
                 g.drawImage(Assets.explosion, getX(), getY(), getWidth(), getHeight(), null);
             }
@@ -275,6 +293,7 @@ public class Aliens implements Commons {
          * To move the alien down a constant amount
          */
         public void goDown() {
+            //move down in y direction
             setY(getY() + GO_DOWN);
         }
         
@@ -367,7 +386,7 @@ public class Aliens implements Commons {
              */
             public Bomb(int x, int y, int width, int height) {
                 super(x, y, width, height);
-                active = false;
+                active = false; //set the bomb as not active
             }
             
             /**
@@ -378,14 +397,15 @@ public class Aliens implements Commons {
             public void drop(int x, int y) {
                 setX(x);
                 setY(y);
-                active = true;
-            }
+                active = true; //set the bomb as active when it is dropped
+            } 
             
             /**
              * To update the object in a frame
              */
             @Override
             public void tick() {
+                //set the bomb as not active again if it touches the ground
                 if (active) {
                     setY(getY() + 1);
                     if (getY() >= GROUND - BOMB_HEIGHT) {
