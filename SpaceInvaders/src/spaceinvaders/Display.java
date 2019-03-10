@@ -66,7 +66,11 @@ public class Display {
     public Canvas getCanvas() {
         return canvas;
     }
-
+    
+    /**
+     * To get jframe
+     * @return 
+     */
     public JFrame getJframe() {
         return jframe;
     }
