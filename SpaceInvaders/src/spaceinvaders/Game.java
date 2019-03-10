@@ -117,6 +117,9 @@ public class Game implements Runnable, Commons {
             if (keyManager.r) {
                 resetGame();
             }
+            if (keyManager.c) {
+                loadGame();
+            }
             return;
         }
         
@@ -289,6 +292,7 @@ public class Game implements Runnable, Commons {
             br.close();
             
             System.out.println("LOADED!");
+            gameOver = false;
            
         } catch (IOException e) {
             System.out.println("BEEP BEEP");
