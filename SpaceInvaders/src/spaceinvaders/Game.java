@@ -36,15 +36,15 @@ public class Game implements Runnable, Commons {
     
     private KeyManager keyManager;
     
-    private Player player;
-    private Aliens aliens;
+    private Player player; //main player
+    private Aliens aliens; //This class contains all aliens
     
-    private boolean gameOver;
-    private boolean gameWon;
-    private boolean paused;
+    private boolean gameOver; //Game over flag
+    private boolean gameWon; //Game won flag
+    private boolean paused; // Paused flag
     
-    private String message;
-    private int score;
+    private String message; //Message to display at the end
+    private int score; //Player score
     
     /**
     * to create title, width and height and set the game is still not running
@@ -113,6 +113,7 @@ public class Game implements Runnable, Commons {
      * updates all objects on a frame
      */
     private void tick() {
+        //If game is over, check for the keyboard for reset game or load game
         if (gameOver) {
             keyManager.tick();
             if (keyManager.r) {
@@ -124,6 +125,7 @@ public class Game implements Runnable, Commons {
             return;
         }
         
+        //If paused, check the keyboard for paused, save game, load game or reset
         if (paused) {
             keyManager.tick();
             if (keyManager.p) {
@@ -145,18 +147,21 @@ public class Game implements Runnable, Commons {
         
         keyManager.tick();
         
+        //Pause game
         if (keyManager.p) {
             paused = true;
         }
-        
+         //Save game
         if (keyManager.g) {
             saveGame();
         }
         
+        //Load game
         if (keyManager.c) {
             loadGame();
         }
         
+        //Restart game
         if (keyManager.r) {
             resetGame();
         }
@@ -165,22 +170,27 @@ public class Game implements Runnable, Commons {
         
         aliens.tick();
         
+        //Check if the shot kills an alien and reset the shot if true
         if (aliens.checkShot(player.getShot())) {
             player.getShot().setActive(false);
             player.getShot().reset();
             score += 100;
         }
         
+        //Check if all aliens are dead and end game if true
         if (aliens.allDead()) {
             message = "Game Won!";
             gameOver = true;
         }
         
+        //Check if aliens have reached the ground and end game if ture
         if (aliens.haveInvaded()) {
             message = "Invasion!";
             gameOver = true;
         }
         
+        //Check if a bomb intersects the player and end game if true since
+        //there is only one life
         if (aliens.bombIntersects(player)) {
             gameOver = true;
         }
@@ -203,7 +213,8 @@ public class Game implements Runnable, Commons {
             if (gameOver) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
-
+                
+                //Render a grey rectangle
                 g.setColor(new Color(0, 32, 48));
                 g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
                 g.setColor(Color.white);
@@ -211,7 +222,8 @@ public class Game implements Runnable, Commons {
 
                 Font small = new Font("Helvetica", Font.BOLD, 14);
                 FontMetrics metr = display.getJframe().getFontMetrics(small);
-
+                
+                //Render the end message
                 g.setColor(Color.white);
                 g.setFont(small);
                 g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2, BOARD_WIDTH / 2);
@@ -241,7 +253,8 @@ public class Game implements Runnable, Commons {
 
                     small = new Font("Helvetica", Font.BOLD, 14);
                     FontMetrics metr = display.getJframe().getFontMetrics(small);
-
+                    
+                    //Render the paused message
                     g.setColor(Color.white);
                     g.setFont(small);
                     g.drawString("Paused", (BOARD_WIDTH - metr.stringWidth("Paused")) / 2, BOARD_WIDTH / 2);
@@ -263,14 +276,17 @@ public class Game implements Runnable, Commons {
             //Open text file
             PrintWriter pw = new PrintWriter(new FileWriter("game.txt"));
             
+            //Save player and shot positions, as well as shot status
             pw.println(Integer.toString(player.getX()));
             pw.println(Integer.toString(player.getY()));
             pw.println(Integer.toString(player.getShot().getX()));
             pw.println(Integer.toString(player.getShot().getY()));
             pw.println(Integer.toString(player.getShot().isActive() ? 1 : 0));
             
+            //save all aliens
             aliens.save(pw);
             
+            //save score
             pw.println(Integer.toString(score));
             
             pw.close();
@@ -292,14 +308,18 @@ public class Game implements Runnable, Commons {
             //Open file to load game
             BufferedReader br = new BufferedReader(new FileReader("game.txt"));
             
+            
+            //Load player and shot positions as well as score
             player.setX(Integer.parseInt(br.readLine()));
             player.setY(Integer.parseInt(br.readLine()));
             player.getShot().setX(Integer.parseInt(br.readLine()));
             player.getShot().setY(Integer.parseInt(br.readLine()));
             player.getShot().setActive(Integer.parseInt(br.readLine()) == 1);
             
+            //Load all aliens
             aliens.load(br);
             
+            //Load score
             score = Integer.parseInt(br.readLine());
             br.close();
             
@@ -313,15 +333,20 @@ public class Game implements Runnable, Commons {
     }
     
     public void resetGame() {
-
+        
+        //Reset player positions
         player.setX(PLAYER_START_X);
         player.setY(PLAYER_START_Y);
         
+        //Reset shot position
         player.getShot().setX(PLAYER_START_X);
         player.getShot().setY(PLAYER_START_Y);
+        player.getShot().setActive(false);
         
+        //Reset all aliens
         aliens.reset();
         
+        //restart game and score
         gameOver = false;
         score = 0;
     }
