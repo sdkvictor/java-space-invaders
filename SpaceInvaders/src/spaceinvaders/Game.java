@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Scanner;
 
 /**
  *
@@ -46,6 +47,8 @@ public class Game implements Runnable, Commons {
     private String message; //Message to display at the end
     private int score; //Player score
     
+    private NetworkManager network;
+    
     /**
     * to create title, width and height and set the game is still not running
     * @param title to set the title of the window
@@ -58,7 +61,7 @@ public class Game implements Runnable, Commons {
         this.height = height;
         
         aliens = new Aliens();
-
+        
         running = false;
         keyManager = new KeyManager();
         gameOver = false;
@@ -107,6 +110,28 @@ public class Game implements Runnable, Commons {
         display.getJframe().addKeyListener(keyManager);
         
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
+        
+        Scanner reader = new Scanner(System.in);
+        
+        System.out.println("Server (s) or client(c): ");
+        String decision = reader.next();
+        
+        if ("c".equals(decision)) {
+            network = new NetworkManager(false);
+            System.out.print("Address: ");
+            String addr = reader.next();
+            System.out.print("Port: ");
+            int port = reader.nextInt();
+            network.initClient(addr, port);
+            network.sendData(new NetworkData(2,3));
+        } else {
+            network = new NetworkManager(true);
+            network.initServer();
+        }
+        
+        Thread myThread = new Thread(network);
+        
+        myThread.start();
     }
     
     /**
@@ -145,6 +170,7 @@ public class Game implements Runnable, Commons {
             return;
         }
         
+        network.sendData(new NetworkData(player.getX(), player.getY()));
         keyManager.tick();
         
         //Pause game
