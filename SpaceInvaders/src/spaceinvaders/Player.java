@@ -18,6 +18,8 @@ public class Player extends Item implements Commons {
     private int speed;
     private Shot shot;
     
+    private boolean recentShot;
+    
     /**
      * To create a new player object
      * @param x
@@ -33,6 +35,7 @@ public class Player extends Item implements Commons {
         
         this.game = game;
         speed = 4;
+        recentShot = false;
     }
     
     /**
@@ -40,6 +43,10 @@ public class Player extends Item implements Commons {
      */
     @Override
     public void tick() {
+        
+        if (recentShot) {
+            recentShot = false;
+        }
         //Check left key
         if (game.getKeyManager().left) {
             setX(getX() - speed);
@@ -54,6 +61,7 @@ public class Player extends Item implements Commons {
         if (game.getKeyManager().space && !shot.isActive()) {
             shoot();
             Assets.laser.play();
+            recentShot = true;
         }
         
         //Left boundary
@@ -81,7 +89,7 @@ public class Player extends Item implements Commons {
     /**
      * To shoot the shot object of the player
      */
-    private void shoot() {
+    public void shoot() {
         shot.shoot(getX() + getWidth()/2, getY());
     }
     
@@ -107,6 +115,10 @@ public class Player extends Item implements Commons {
      */
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public boolean isRecentShot() {
+        return recentShot;
     }
     
     /**

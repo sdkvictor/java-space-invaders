@@ -126,6 +126,7 @@ public class Game implements Runnable, Commons {
             int port = reader.nextInt();
             network.initClient(addr, port);
         } else {
+            paused = true;
             network = new NetworkManager(true);
             network.initServer();
         }
@@ -171,7 +172,16 @@ public class Game implements Runnable, Commons {
             return;
         }
         
-        network.sendData(new NetworkData(player.getX(), player.getY()));
+        network.sendData(new NetworkData(player.getX(), player.getY(), true, player.isRecentShot()));
+        
+        if (network.getReceivedData().isShoot()) {
+            coop.shoot();
+        }
+        
+        if (network.getReceivedData().isReady()) {
+            paused = false;
+        }
+        
         coop.setX(network.getReceivedData().getX());
         coop.setY(network.getReceivedData().getY());
         keyManager.tick();

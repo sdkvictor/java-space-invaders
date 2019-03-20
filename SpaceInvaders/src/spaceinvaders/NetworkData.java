@@ -13,9 +13,14 @@ public class NetworkData {
     private int x;
     private int y;
     
-    public NetworkData(int x, int y) {
+    private boolean ready;
+    private boolean shoot;
+    
+    public NetworkData(int x, int y, boolean ready, boolean shoot) {
         this.x = x;
         this.y = y;
+        this.ready = ready;
+        this.shoot = shoot;
     }
 
     public int getX() {
@@ -25,6 +30,12 @@ public class NetworkData {
     public int getY() {
         return y;
     }
-    
-    
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public boolean isShoot() {
+        return shoot;
+    }
 }
