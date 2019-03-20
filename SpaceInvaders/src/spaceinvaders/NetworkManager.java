@@ -34,6 +34,7 @@ public class NetworkManager implements Runnable {
     private NetworkData receivedData;
     
     public NetworkManager(boolean isServer) {
+        receivedData = new NetworkData(0,0);
         builder = new GsonBuilder();
         //builder.setPrettyPrinting();
         gson = builder.create();
@@ -100,7 +101,7 @@ public class NetworkManager implements Runnable {
             }
             
             String message = new String(buff).trim();
-            System.out.println(message);
+            //System.out.println(message);
             receivedData = gson.fromJson(message, NetworkData.class);
         } catch (IOException e) {
             System.out.println(e);
@@ -109,7 +110,9 @@ public class NetworkManager implements Runnable {
 
     @Override
     public void run() {
-        receiveData();
+        while (true) {
+            receiveData();
+        }
     }
 
     public NetworkData getReceivedData() {
