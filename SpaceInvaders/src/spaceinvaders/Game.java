@@ -154,6 +154,7 @@ public class Game implements Runnable, Commons {
         
         //If paused, check the keyboard for paused, save game, load game or reset
         if (paused) {
+            network.sendData(new NetworkData(player.getX(), player.getY(), true, player.isRecentShot()));
             keyManager.tick();
             if (keyManager.p) {
                 paused = false;
@@ -169,6 +170,9 @@ public class Game implements Runnable, Commons {
             if (keyManager.r) {
                 resetGame();
             }
+            if (network.getReceivedData().isReady()) {
+                paused = false;
+            }
             return;
         }
         
@@ -178,9 +182,7 @@ public class Game implements Runnable, Commons {
             coop.shoot();
         }
         
-        if (network.getReceivedData().isReady()) {
-            paused = false;
-        }
+        
         
         coop.setX(network.getReceivedData().getX());
         coop.setY(network.getReceivedData().getY());
@@ -206,7 +208,7 @@ public class Game implements Runnable, Commons {
         }
         
         player.tick();
-        
+        coop.tick();
         aliens.tick();
         
         //Check if the shot kills an alien and reset the shot if true

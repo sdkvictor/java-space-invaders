@@ -14,4 +14,9 @@ public class CoopPlayer extends Player {
     public CoopPlayer(int x, int y, int width, int height, Game game) {
         super(x, y, width, height, game);
     }
+    
+    @Override
+    public void tick() {
+        shot.tick();
+    }
 }
