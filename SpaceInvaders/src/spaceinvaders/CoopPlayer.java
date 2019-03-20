@@ -9,22 +9,9 @@ package spaceinvaders;
  *
  * @author charles
  */
-public class NetworkData {
-    private int x;
-    private int y;
+public class CoopPlayer extends Player {
     
-    public NetworkData(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public CoopPlayer(int x, int y, int width, int height, Game game) {
+        super(x, y, width, height, game);
     }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-    
-    
 }

@@ -38,6 +38,7 @@ public class Game implements Runnable, Commons {
     private KeyManager keyManager;
     
     private Player player; //main player
+    private CoopPlayer coop; //remote player
     private Aliens aliens; //This class contains all aliens
     
     private boolean gameOver; //Game over flag
@@ -110,6 +111,7 @@ public class Game implements Runnable, Commons {
         display.getJframe().addKeyListener(keyManager);
         
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
+        coop = new CoopPlayer(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT, this);
         
         Scanner reader = new Scanner(System.in);
         
@@ -123,7 +125,6 @@ public class Game implements Runnable, Commons {
             System.out.print("Port: ");
             int port = reader.nextInt();
             network.initClient(addr, port);
-            network.sendData(new NetworkData(2,3));
         } else {
             network = new NetworkManager(true);
             network.initServer();
@@ -171,6 +172,8 @@ public class Game implements Runnable, Commons {
         }
         
         network.sendData(new NetworkData(player.getX(), player.getY()));
+        coop.setX(network.getReceivedData().getX());
+        coop.setY(network.getReceivedData().getY());
         keyManager.tick();
         
         //Pause game
@@ -217,9 +220,9 @@ public class Game implements Runnable, Commons {
         
         //Check if a bomb intersects the player and end game if true since
         //there is only one life
-        if (aliens.bombIntersects(player)) {
+       /* if (aliens.bombIntersects(player)) {
             gameOver = true;
-        }
+        }*/
     }
     
     /**
@@ -261,6 +264,7 @@ public class Game implements Runnable, Commons {
                 g.setColor(Color.green);
                 g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
                 player.render(g);
+                coop.render(g);
 
                 aliens.render(g);
                 
@@ -479,6 +483,10 @@ public class Game implements Runnable, Commons {
      */
     public void setGameWon(boolean gameWon) {
         this.gameWon = gameWon;
+    }
+
+    public NetworkManager getNetwork() {
+        return network;
     }
     
     /**
