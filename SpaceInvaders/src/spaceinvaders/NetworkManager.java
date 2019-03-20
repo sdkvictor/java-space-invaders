@@ -34,7 +34,7 @@ public class NetworkManager implements Runnable {
     private NetworkData receivedData;
     
     public NetworkManager(boolean isServer) {
-        receivedData = new NetworkData(0,0);
+        receivedData = new NetworkData(0,0,false,false);
         builder = new GsonBuilder();
         //builder.setPrettyPrinting();
         gson = builder.create();
