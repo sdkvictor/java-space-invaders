@@ -14,9 +14,9 @@ import java.awt.Graphics;
  */
 public class Player extends Item implements Commons {
     
-    private Game game;
-    private int speed;
-    private Shot shot;
+    protected Game game;
+    protected int speed;
+    protected Shot shot;
     
     private boolean recentShot;
     
