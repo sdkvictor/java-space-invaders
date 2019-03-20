@@ -24,7 +24,7 @@ public class Aliens implements Commons {
      * Aliens class methods
      */
     private ArrayList<Alien> aliens; //arraylist of objects of class alian
-    private int direction = 1; //movement direction of the aliens
+    private int direction = 4; //movement direction of the aliens
     
     private int amountDestroyed;
 
@@ -41,8 +41,8 @@ public class Aliens implements Commons {
         amountDestroyed = 0;
         //adds 24 enemy aliens in their different initial positions
         for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 6; j++) {
-                Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i, ALIEN_HEIGHT, ALIEN_WIDTH, -1, i);
+            for (int j = 0; j < 12; j++) {
+                Alien alien = new Alien(ALIEN_INIT_X + 40 * j, ALIEN_INIT_Y + 40 * i, ALIEN_HEIGHT, ALIEN_WIDTH, -1, i);
                 aliens.add(alien);
             }
         }
@@ -192,6 +192,7 @@ public class Aliens implements Commons {
                     aliens.get(j).goDown();
                 }
             }
+
             aliens.get(i).tick();
         }
     }
@@ -246,8 +247,19 @@ public class Aliens implements Commons {
          */
         @Override
         public void tick() {
-            //move the aliens in x 
-            setX(getX() + direction);
+            if(amountDestroyed<25){
+                //move the aliens in x 
+                setX(getX() + direction);
+            }
+            else{
+                if(amountDestroyed<29){
+                    setX(getX() + direction * 2);
+                }
+                else{
+                    setX(getX()+ direction * 4);
+                }
+            }
+  
             //wait 20 frames for the explosion animation
             if (recentlyDead) {
                 recentlyDeadCounter++;
@@ -260,7 +272,7 @@ public class Aliens implements Commons {
             //Check if the alien has not dropped a bomb and is alive
             if (!bomb.isActive() && !isDead()) {
                 //The alien has 1/15 probability of dropping a bomb
-                int chance = (int) (Math.random() * 15);
+                int chance = (int) (Math.random() * 500);
                 
                 //1/15 chance
                 if (chance == 0) {
@@ -407,7 +419,7 @@ public class Aliens implements Commons {
             public void tick() {
                 //set the bomb as not active again if it touches the ground
                 if (active) {
-                    setY(getY() + 1);
+                    setY(getY() + 4);
                     if (getY() >= GROUND - BOMB_HEIGHT) {
                         setY(0);
                         setActive(false);    

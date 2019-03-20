@@ -32,7 +32,7 @@ public class Player extends Item implements Commons {
         shot = new Shot(getX(), getY(), SHOT_WIDTH, SHOT_HEIGHT);
         
         this.game = game;
-        speed = 2;
+        speed = 4;
     }
     
     /**
@@ -128,7 +128,7 @@ public class Player extends Item implements Commons {
         public Shot(int x, int y, int width, int height) {
             super(x, y, width, height);
             active = false;
-            speed = 4;
+            speed = 8;
         }
         
         /**
@@ -155,8 +155,9 @@ public class Player extends Item implements Commons {
         @Override
         public void tick() {
             if (active) {
+                setY(getY() - speed);
                 //Move the shot up when active
-                setY(getY() - 4);
+
             }
             
             if (getY() <= 0) {
