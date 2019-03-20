@@ -155,9 +155,12 @@ public class Player extends Item implements Commons {
         @Override
         public void tick() {
             if (active) {
+<<<<<<< HEAD
                 setY(getY() - speed);
+=======
                 //Move the shot up when active
-
+                setY(getY() - 4);
+>>>>>>> d4be279badd5d6fc94afea21c2b7dbfd0fe24fd7
             }
             
             if (getY() <= 0) {
